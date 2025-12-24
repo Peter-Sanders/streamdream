@@ -43,6 +43,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "327e18ee-0d65-4345-af5e-25a1d644d882"
+      }
+    },
+    "owner": "dragon-fruit"
   }
 }
