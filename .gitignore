@@ -42,4 +42,6 @@ app-example
 /ios
 /android
 
+.env
+
 expo-env.d.ts
