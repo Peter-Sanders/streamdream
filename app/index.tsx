@@ -1,11 +1,11 @@
-import { View} from "react-native";
-import States from "./states";
+import { View } from "react-native";
+import States from "../components/states/states";
 
 
 export default function Index() {
  
   return (
-    <View>
+    <View style={{flex:1}}>
       <States />
     </View>
   );

@@ -1,6 +1,6 @@
 import { StyleSheet } from "react-native";
 
-export const stateStyle = StyleSheet.create({
+export const styles = StyleSheet.create({
     name: {
         fontSize: 20,
         fontWeight: "bold"
