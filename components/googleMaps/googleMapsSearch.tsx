@@ -1,4 +1,4 @@
-import { Linking, Pressable, Text } from "react-native";
+import { Linking, Pressable, Text, Button } from "react-native";
 import { styles } from "./styles";
 import { Coordinate, Props } from "./types";
 
@@ -14,6 +14,13 @@ export const OpenMapButton: React.FC<Props> = ({ coordinates }) => {
 
       await Linking.openURL(url);
     };
+
+    if (! coordinates  || coordinates.length === 0) {
+      return <Button 
+        title="Location not Found"
+        color='#e81a1aff'
+      />
+    }
     
   return (
     <Pressable

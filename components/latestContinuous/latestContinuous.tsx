@@ -9,19 +9,25 @@ import { parameterCodeData, parameterCodeProperty } from "../../types/usgs";
 
 export default function LatestContinuous() {
     const params: Record<string, string> = useLocalSearchParams();
-    console.log(params);
+    // console.log(params);
     const [latestContinuous, setLatestContinuous] = useState<latestContinuousData>();
     const [parameterCodeDetails, setParameterCodeDetails] = useState<Map<string, parameterCodeProperty>>(new Map());
 
-    useEffect(() => { fetchLatestContinuous(params.monitoring_location_id); }, [params.monitoring_location_id]);
+    useEffect(() => { 
+        console.log("params:", params.monitoring_location_id);
+        fetchLatestContinuous(params.monitoring_location_id); 
+    }, [params.monitoring_location_id]);
     useEffect(() => {
         if (!latestContinuous) return;
         fetchParameterCodeDetails(latestContinuous.features);
     }, [latestContinuous]);
 
     async function fetchLatestContinuous(monitoring_location_id: string) {
+        console.log("fetching guage data");
         try {
             const latestContinuous = await USGSAPI.getLatestContinuous(monitoring_location_id);
+            console.log("latest response:", latestContinuous);
+            console.log("latest features:", latestContinuous?.features);
             setLatestContinuous(latestContinuous);
         } catch (error) {
             console.log(error)
@@ -29,6 +35,11 @@ export default function LatestContinuous() {
     };
 
     async function fetchParameterCodeDetails(features: latestContinuousData["features"]) {
+        if (!features || features.length === 0) {
+            console.log("dagnabbit");
+            setParameterCodeDetails(new Map())
+        return;
+        }
 
         try {
 
@@ -41,6 +52,7 @@ export default function LatestContinuous() {
             ];
             const results: parameterCodeData = await USGSAPI.getBulkParameterCodeDetails(uniqueParameterCodes);
             const mapRes = new Map(results.features.map(obj => [obj.id, obj.properties]));
+            console.log(mapRes);
 
             setParameterCodeDetails(mapRes);
         }
@@ -52,12 +64,12 @@ export default function LatestContinuous() {
     return (
         <View style={baseStyles.view}>
             <Text>
-                Location: {params.monitoring_location_name}
+                Location: {params?.monitoring_location_name ?? "...Loading"}
             </Text>
 
             <ScrollView style={baseStyles.scrollView}>
-                {latestContinuous?.features.map((latest_continuous) => {
-                    const details = parameterCodeDetails.get(latest_continuous.properties.parameter_code);
+                {latestContinuous?.features?.map((latest_continuous) => {
+                    const details = parameterCodeDetails?.get(latest_continuous.properties.parameter_code);
 
                     return (
                         <View key={latest_continuous.id}>
@@ -72,7 +84,8 @@ export default function LatestContinuous() {
                             </Text>
                         </View>
                     );
-                })}
+                }) ?? <Text>Loading Data ...</Text>
+                }
             </ScrollView>
         </View>
     );

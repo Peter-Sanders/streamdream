@@ -7,6 +7,12 @@ export const styles = StyleSheet.create({
     borderRadius: 6,
     alignItems: 'center',
   },
+  sad_button: {
+    padding: 12,
+    backgroundColor: '#e81a1aff',
+    borderRadius: 6,
+    alignItems: 'center',
+  },
   pressed: {
     opacity: 0.7,
   },

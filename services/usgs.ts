@@ -13,9 +13,20 @@ const baseParams:Record<string, string> = {
     offset:"0"
 };
 
+interface queryParamsType  {
+    [key: string]:any;
+}
+
 const baseURL:string = "https://api.waterdata.usgs.gov/ogcapi/v0/collections";
 
-async function GetUSGSData<T>(endpoint:string, params:Record<string,string>={}, lang:string="en-us", limit:number=1000, offset:number=0): Promise<T> {
+async function GetUSGSData<T>(
+    endpoint:string, 
+    params:Record<string,string>={}, 
+    lang:string="en-us", 
+    limit:number=1000, 
+    offset:number=0,
+    sub_route:string="items"
+): Promise<T> {
     
     const query = new URLSearchParams({
         ...baseParams, 
@@ -25,7 +36,8 @@ async function GetUSGSData<T>(endpoint:string, params:Record<string,string>={}, 
         offset:offset.toString(),
     });
 
-    const url:string = `${baseURL}/${endpoint}?${query}`;
+    const url:string = `${baseURL}/${endpoint}/${sub_route}?${query}`;
+    
 
     try {
         const response = await fetch (url, {method: 'GET', headers: baseHeaders});
@@ -47,26 +59,49 @@ async function GetUSGSData<T>(endpoint:string, params:Record<string,string>={}, 
 export const USGSAPI = {
     async getStates(country_code:string="US", lang?:string): Promise<stateData> {
         try {
-            return await GetUSGSData<stateData>("states/items", {country_code:country_code}, lang);
+            return await GetUSGSData<stateData>("states", {country_code:country_code}, lang);
         }
         catch (error) {
             console.error("Experienced some issue getting states", error);
             throw error;
         }
     },
-    async getMonitoringLocations(state_code:string, site_type_codes?:string[], country_code:string="US", lang?:string): Promise<monitoringLocationData> {
+    async getMonitoringLocations(
+        state_code:string, 
+        // site_type_codes:string[]=['ST'], 
+        site_type_code:string='ST',
+        country_code:string="US", 
+        lang?:string,
+        agency_code:string="USGS",
+        sort_by?:string,
+        limit?:number,
+        offset?:number
+    ): Promise<monitoringLocationData> {
 
-        const siteTypes = site_type_codes ?? ['ST'];
-        const filterExpr = `site_type_code IN (${siteTypes.map(v => `'${v}'`).join(', ')})`;
-        const queryParams = {
+        // const filterExpr = `site_type_code IN (${site_type_codes.map(v => `'${v}'`).join(', ')})`;
+        const queryParams: queryParamsType= {
             country_code:country_code, 
             state_code:state_code,
-            filter:filterExpr,
+            agency_code:agency_code,
+            site_type_code:site_type_code,
+            // filter:filterExpr,
         }
+
+        if (sort_by) {
+            queryParams.sortby = sort_by;
+        };
+
+        if (limit) {
+            queryParams.limit = limit.toString();
+        };
+
+        if (offset) {
+            queryParams.offset = offset.toString();
+        };
 
         try {
             return await GetUSGSData<monitoringLocationData>(
-                "monitoring-locations/items", 
+                "monitoring-locations", 
                 queryParams, 
                 lang,
             ) as monitoringLocationData;
@@ -85,7 +120,7 @@ export const USGSAPI = {
         try {
 
             return await GetUSGSData<parameterCodeData>(
-                "parameter-codes/items",
+                "parameter-codes",
                 queryParams,
                 lang
             ) as parameterCodeData;
@@ -104,7 +139,7 @@ export const USGSAPI = {
         try {
 
             return await GetUSGSData<parameterCodeData>(
-                "parameter-codes/items",
+                "parameter-codes",
                 queryParams,
                 lang
             ) as parameterCodeData;
@@ -113,11 +148,10 @@ export const USGSAPI = {
             throw error;           
         }
     },
-    async getLatestContinuous(monitoring_location_id:string, country_code:string="US", lang?:string): Promise<latestContinuousData> {
+    async getLatestContinuous(monitoring_location_id:string, lang?:string): Promise<latestContinuousData> {
         
         const queryParams = {
-            monitoring_location_id:monitoring_location_id,
-            country_code:country_code
+            monitoring_location_id:monitoring_location_id
         }
 
         try {
