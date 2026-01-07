@@ -45,3 +45,5 @@ app-example
 .env
 
 expo-env.d.ts
+
+foo.ts

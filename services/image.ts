@@ -1,8 +1,11 @@
-import { StateCode } from "../types/usgs";
-
 export const DefaultStateImage: Record<string, any> = require("../assets/images/United-States-Country-Outline.jpg");
 
-export const stateImages: Record<StateCode, any> = {
+
+export function getStateImage(stateName: string): string {
+  return `../assets/images/${stateName}-Outline-Map.jpg`;
+}
+
+export const stateImages: Record<string, any> = {
   AL: require("../assets/images/Alabama-Outline-Map.jpg"),
   AK: require("../assets/images/Alaska-Outline-Map.jpg"),
   AZ: require("../assets/images/Arizona-Outline-Map.jpg"),
